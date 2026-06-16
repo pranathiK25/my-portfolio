@@ -1,5 +1,5 @@
 /* ====================
-   THEME TOGGLE (animated)
+   THEME TOGGLE
    ==================== */
 const body = document.body;
 const themeToggle = document.getElementById('themeToggle');
@@ -18,7 +18,6 @@ themeToggle.addEventListener('click', () => {
   if (body.classList.contains('theme-light')) {
     body.classList.remove('theme-light');
     body.classList.add('theme-dark');
-    // small fade for accent transitions
   } else {
     body.classList.remove('theme-dark');
     body.classList.add('theme-light');
@@ -27,13 +26,13 @@ themeToggle.addEventListener('click', () => {
 });
 
 /* ====================
-   TYPEWRITER (roles)
+   TYPEWRITER
    ==================== */
 const typeEl = document.getElementById('typewriter');
 const roles = ['BTech CSE Student!', 'Java Enthusiast!', 'Open Source Contributor!', 'Problem Solver!'];
 let typeIndex = 0, charIndex = 0, deleting = false;
 
-function typeLoop(){
+function typeLoop() {
   const current = roles[typeIndex % roles.length];
   if (!deleting) {
     typeEl.textContent = current.slice(0, charIndex + 1);
@@ -56,29 +55,26 @@ function typeLoop(){
 typeLoop();
 
 /* ====================
-   SCROLL REVEAL & SKILL ANIMATION
+   SCROLL REVEAL & SKILL BARS
    ==================== */
 const revealEls = document.querySelectorAll('.reveal');
-const fills = document.querySelectorAll('.fill');
 
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       entry.target.classList.add('visible');
-
-      // animate skill bars if present within this section
       entry.target.querySelectorAll('.fill').forEach(f => {
         const value = f.dataset.fill || 60;
         f.style.width = value + '%';
       });
     }
   });
-}, {threshold: 0.18});
+}, { threshold: 0.18 });
 
 revealEls.forEach(el => observer.observe(el));
 
 /* ====================
-   PROJECT CARD 3D TILT (mouse)
+   PROJECT CARD 3D TILT
    ==================== */
 const projects = document.querySelectorAll('.project-card');
 projects.forEach(card => {
@@ -87,8 +83,8 @@ projects.forEach(card => {
     const rect = card.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width;
     const y = (e.clientY - rect.top) / rect.height;
-    const rotateY = (x - 0.5) * 14; // -7..7
-    const rotateX = (0.5 - y) * 8; // -4..4
+    const rotateY = (x - 0.5) * 14;
+    const rotateX = (0.5 - y) * 8;
     inner.style.transform = `translateY(-6px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
   });
   card.addEventListener('mouseleave', () => {
@@ -97,36 +93,49 @@ projects.forEach(card => {
 });
 
 /* ====================
-   CONTACT FORM (demo feedback)
+   CONTACT FORM — FIX #10
+   Actually submits to Formspree via fetch instead of faking it
    ==================== */
 const form = document.getElementById('contactForm');
-form.addEventListener('submit', (e) => {
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const btn = form.querySelector('.cta-btn');
   btn.textContent = 'Sending…';
   btn.disabled = true;
 
-  // simulate send
-  setTimeout(() => {
-    btn.textContent = 'Sent ✓';
-    btn.style.transform = 'translateY(-2px)';
-    setTimeout(() => {
-      btn.textContent = 'Send Message';
-      btn.disabled = false;
+  try {
+    const response = await fetch('https://formspree.io/f/mandbpwy', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+      body: new FormData(form)
+    });
+
+    if (response.ok) {
+      btn.textContent = 'Sent ✓';
       form.reset();
-    }, 1400);
-  }, 900);
+      setTimeout(() => {
+        btn.textContent = 'Send Message';
+        btn.disabled = false;
+      }, 2500);
+    } else {
+      btn.textContent = 'Failed — try again';
+      btn.disabled = false;
+    }
+  } catch {
+    btn.textContent = 'Failed — try again';
+    btn.disabled = false;
+  }
 });
 
 /* ====================
-   small accessibility tweaks
+   SMOOTH SCROLL
    ==================== */
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', (e) => {
     const target = document.querySelector(a.getAttribute('href'));
     if (target) {
       e.preventDefault();
-      target.scrollIntoView({behavior:'smooth', block:'start'});
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   });
 });
